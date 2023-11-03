@@ -1,20 +1,14 @@
 const fetch = require("node-fetch");
 var express = require('express');
-var multiparty = require('multiparty');
-//var bodyParser = require('body-parser')
+const FormData = require('form-data');
+
 var app = express();
 
-//app.use(bodyParser.urlencoded({
-//  extended: false
-//}));
-
-//app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
-//  extended: true
-//}));
 
 app.use(express.urlencoded(({
   extended: true
 })));
+app.use(express.json());
 //app.use(bodyParser.json());
 // set the view engine to ejs
 app.set('view engine', 'ejs');
@@ -37,33 +31,19 @@ res.render('pages/washere',{mes:''})
 //washere page
 app.post('/youare', function(req, res) {
   const url = 'http://localhost:2000/name'
-  console.log(req.body)
-  var form = new multiparty.Form();
-  form.parse(req, function(err, fields, files) {
-    const data = {
-      fields: fields
-  };
-  const customHeaders = {
-    "Content-Type": "application/json",
-}
-console.log(JSON.stringify(data));
-fetch(url, {
-    method: "POST",
-    headers: customHeaders,
-    body: JSON.stringify(data),
-})
-    .then((response) => response.text())
-    .then((data) => {
-        console.log(data);
-    });
-  return res.redirect('/washere');
+  const form = new FormData();
+  form.append('name', req.body.name);
+  form.append('message', req.body.message);
 
-  });
+fetch(url, {method: 'POST', body: form })
+  return res.redirect('/washere');
 
 });
 
-app.get('/who', function(req, res) {
-  const r = fetch('http://localhost:2000/message')
+app.post('/who', function(req, res) {
+  const form = new FormData();
+  form.append('who', req.body.who);
+  const r = fetch('http://localhost:2000/message',{method: 'POST', body: form })
   .then((response) => response.text())
   .then((body) => {
     const mes = body;
