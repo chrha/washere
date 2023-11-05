@@ -19,7 +19,7 @@ app.use(express.urlencoded(({
 
 function getM(who){
     let data = '';
-    filePath = path.join(__dirname, '../data/db.txt');
+    filePath = path.join(__dirname, '/data/db.txt');
     const allFileContents = fs.readFileSync(filePath, 'utf-8');
     allFileContents.split(/\r?\n/).forEach(line =>  {
         if (line.split(' : ')[0] == who){
@@ -44,7 +44,7 @@ app.post('/message', function(req, res) {
 app.post('/name', function(req, res){
     var fs = require('fs');
     path = require('path');
-    filePath = path.join(__dirname, '../data/db.txt');
+    filePath = path.join(__dirname, '/data/db.txt');
     var form = new multiparty.Form();
     form.parse(req, function(err, fields, files) {
         const n = fields.name+' : '+fields.message+'\n';

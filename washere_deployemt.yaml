@@ -1,0 +1,104 @@
+# washere-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: washere-webapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: washere-webapp
+  template:
+    metadata:
+      labels:
+        app: washere-webapp
+    spec:
+      containers:
+      - name: washere-app
+        image: chrha/washere-webapp:v2 # Replace with your Docker image
+        ports:
+        - containerPort: 3030
+        volumeMounts:
+        - name: data-volume
+          mountPath: /app/data
+      volumes:
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: washere-data-pvc
+
+---
+# washere-data-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: washere-data
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: washere-data
+  template:
+    metadata:
+      labels:
+        app: washere-data
+    spec:
+      containers:
+      - name: washere-data
+        image: chrha/washere-data:v4 # Replace with your Docker image
+        ports:
+        - containerPort: 2000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: washere-data-service
+spec:
+  selector:
+    app: washere-data
+  ports:
+    - protocol: TCP
+      port: 2000
+      targetPort: 2000
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: washere-node
+spec:
+  selector:
+    app: washere-webapp
+  ports:
+    - protocol: TCP
+      port: 30000
+      targetPort: 3030
+  type: NodePort
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: washere-data-pv
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /app/data # Update with the host path where you want to store "db.txt"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: washere-data-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: ""
+  volumeName: washere-data-pv
+
+

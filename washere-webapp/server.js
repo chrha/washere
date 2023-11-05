@@ -30,7 +30,7 @@ res.render('pages/washere',{mes:''})
 
 //washere page
 app.post('/youare', function(req, res) {
-  const url = 'http://localhost:2000/name'
+  const url = 'http://washere-data-service:2000/name'
   const form = new FormData();
   form.append('name', req.body.name);
   form.append('message', req.body.message);
@@ -43,7 +43,7 @@ fetch(url, {method: 'POST', body: form })
 app.post('/who', function(req, res) {
   const form = new FormData();
   form.append('who', req.body.who);
-  const r = fetch('http://localhost:2000/message',{method: 'POST', body: form })
+  const r = fetch('http://washere-data-service:2000/message',{method: 'POST', body: form })
   .then((response) => response.text())
   .then((body) => {
     const mes = body;
